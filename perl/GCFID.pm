@@ -11,7 +11,7 @@ sub new {
 sub build {
     my ($self, $list) = @_;
 
-    $self->{grammer} = [
+    $self->{grammar} = [
         { left => -1, right => -1, length => 1, rank => 0 },
         { left => -1, right => -1, length => 1, rank => 1 },
     ];
@@ -20,12 +20,12 @@ sub build {
 
 sub total_size {
     my ($self) = @_;
-    return $self->{grammer}[@{$self->{grammer}} - 1]{length};
+    return $self->{grammar}[@{$self->{grammar}} - 1]{length};
 }
 
 sub size {
     my ($self, $bit) = @_;
-    my $value = $self->{grammer}[@{$self->{grammer}} - 1]{rank};
+    my $value = $self->{grammar}[@{$self->{grammar}} - 1]{rank};
     return $bit ? $value : ($self->total_size() - $value);
 }
 
@@ -53,11 +53,11 @@ sub _compress {
     }
     my @sorted = sort { $dic{$b} <=> $dic{$a} } keys %dic;
     my ($left, $right) = split(/ /, $sorted[0]);
-    push(@{$self->{grammer}}, {
+    push(@{$self->{grammar}}, {
         left   => $left,
         right  => $right,
-        length => $self->{grammer}[$left]{length} + $self->{grammer}[$right]{length},
-        rank   => $self->{grammer}[$left]{rank}   + $self->{grammer}[$right]{rank},
+        length => $self->{grammar}[$left]{length} + $self->{grammar}[$right]{length},
+        rank   => $self->{grammar}[$left]{rank}   + $self->{grammar}[$right]{rank},
     });
 
     my @new_list;
@@ -65,7 +65,7 @@ sub _compress {
     for my $i (0 .. (@$list - 1)) {
         if ($skip) { $skip = 0; next; }
         if ($i < (@$list - 1) and "$list->[$i] $list->[$i + 1]" eq $sorted[0]) {
-            push(@new_list, @{$self->{grammer}} - 1);
+            push(@new_list, @{$self->{grammar}} - 1);
             $skip = 1;
         } else {
             push (@new_list, $list->[$i]);
@@ -77,21 +77,21 @@ sub _compress {
 sub _search {
     my ($self, $pos, $mode) = @_;
 
-    my $g = $self->{grammer}[@{$self->{grammer}} - 1];
+    my $g = $self->{grammar}[@{$self->{grammar}} - 1];
     return 0          if ($mode eq 'lookup' and $pos >= $g->{length});
     return $g->{rank} if ($mode eq 'rank'   and $pos >= $g->{length});
     return -1         if ($mode eq 'select' and $pos >= $g->{rank});
 
     my $value = 0;
     while (1) {
-        my $left_length = $self->{grammer}[$g->{left}]{length};
-        my $left_rank   = $self->{grammer}[$g->{left}]{rank};
+        my $left_length = $self->{grammar}[$g->{left}]{length};
+        my $left_rank   = $self->{grammar}[$g->{left}]{rank};
         if ($pos < (($mode eq 'select') ? $left_rank : $left_length)) {
-            $g = $self->{grammer}[$g->{left}];
+            $g = $self->{grammar}[$g->{left}];
         } else {
             $value += (($mode eq 'select') ? $left_length : $left_rank);
             $pos   -= (($mode eq 'select') ? $left_rank   : $left_length);
-            $g      = $self->{grammer}[$g->{right}];
+            $g      = $self->{grammar}[$g->{right}];
         }
         last if ($g->{length} == 1);
     }
