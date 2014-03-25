@@ -78,7 +78,9 @@ sub _search {
     my ($self, $pos, $mode) = @_;
 
     my $g = $self->{grammer}[@{$self->{grammer}} - 1];
-    return $g->{rank} if ($pos >= (($mode eq 'select') ? $g->{rank} : $g->{length}));
+    return 0          if ($mode eq 'lookup' and $pos >= $g->{length});
+    return $g->{rank} if ($mode eq 'rank'   and $pos >= $g->{length});
+    return -1         if ($mode eq 'select' and $pos >= $g->{rank});
 
     my $value = 0;
     while (1) {

@@ -37,4 +37,6 @@ sub test_001 {
 
     my @result_selects = map { $fid->select($_); } @ranks;
     is_deeply(\@result_selects, \@values, 'select()');
+
+    done_testing();
 }
