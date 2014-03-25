@@ -1,4 +1,4 @@
 GCFID
 =====
 
-Grammer Compressed Fully Indexable Dictionary.
+Grammar Compressed Fully Indexable Dictionary.
